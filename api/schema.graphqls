@@ -1,0 +1,46 @@
+type Query {
+  match(id: ID!): Match!
+  matches(isFinished: Boolean, limit: Int, offset: Int): [Match!]!
+}
+
+type Mutation {
+  createComment(comment: NewComment!): Comment!
+}
+
+type Match {
+  id: ID!
+
+  createdAt: String!
+  isFinished: Boolean!
+
+  comments: [Comment!]!
+
+  scoreboard: Scoreboard!
+}
+
+type Scoreboard {
+  players: [Player!]!
+}
+
+type Player {
+  username: String!
+  role: Role!
+  isAlive: Boolean!
+
+  kills: Int!
+}
+
+enum Role {
+  VILLAGER
+  MAFIA
+}
+
+type Comment {
+  id: ID!
+  text: String!
+}
+
+input NewComment  {
+  matchId: ID!
+  text: String!
+}
