@@ -58,7 +58,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		CreateComment func(childComplexity int, comment gqlmodel.NewComment) int
+		CreateComment func(childComplexity int, matchID string, text string) int
 	}
 
 	Player struct {
@@ -79,7 +79,7 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateComment(ctx context.Context, comment gqlmodel.NewComment) (*gqlmodel.Comment, error)
+	CreateComment(ctx context.Context, matchID string, text string) (*gqlmodel.Comment, error)
 }
 type QueryResolver interface {
 	Match(ctx context.Context, id string) (*gqlmodel.Match, error)
@@ -160,7 +160,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateComment(childComplexity, args["comment"].(gqlmodel.NewComment)), true
+		return e.complexity.Mutation.CreateComment(childComplexity, args["matchId"].(string), args["text"].(string)), true
 
 	case "Player.isAlive":
 		if e.complexity.Player.IsAlive == nil {
@@ -228,9 +228,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputNewComment,
-	)
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
 	first := true
 
 	switch rc.Operation.Operation {
@@ -296,7 +294,7 @@ var sources = []*ast.Source{
 }
 
 type Mutation {
-  createComment(comment: NewComment!): Comment!
+  createComment(matchId: ID!, text: String!): Comment!
 }
 
 type Match {
@@ -331,11 +329,6 @@ type Comment {
   id: ID!
   text: String!
 }
-
-input NewComment  {
-  matchId: ID!
-  text: String!
-}
 `, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
@@ -347,15 +340,24 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 func (ec *executionContext) field_Mutation_createComment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.NewComment
-	if tmp, ok := rawArgs["comment"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("comment"))
-		arg0, err = ec.unmarshalNNewComment2githubᚗcomᚋlodtheᚋgraphqlᚑexampleᚋinternalᚋgqlmodelᚐNewComment(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["matchId"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchId"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["comment"] = arg0
+	args["matchId"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["text"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+		arg1, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["text"] = arg1
 	return args, nil
 }
 
@@ -792,7 +794,7 @@ func (ec *executionContext) _Mutation_createComment(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateComment(rctx, fc.Args["comment"].(gqlmodel.NewComment))
+		return ec.resolvers.Mutation().CreateComment(rctx, fc.Args["matchId"].(string), fc.Args["text"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3105,37 +3107,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputNewComment(ctx context.Context, obj interface{}) (gqlmodel.NewComment, error) {
-	var it gqlmodel.NewComment
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "matchId":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("matchId"))
-			it.MatchID, err = ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "text":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
-			it.Text, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3916,11 +3887,6 @@ func (ec *executionContext) marshalNMatch2ᚖgithubᚗcomᚋlodtheᚋgraphqlᚑe
 		return graphql.Null
 	}
 	return ec._Match(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNNewComment2githubᚗcomᚋlodtheᚋgraphqlᚑexampleᚋinternalᚋgqlmodelᚐNewComment(ctx context.Context, v interface{}) (gqlmodel.NewComment, error) {
-	res, err := ec.unmarshalInputNewComment(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalNPlayer2githubᚗcomᚋlodtheᚋgraphqlᚑexampleᚋinternalᚋgqlmodelᚐPlayer(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Player) graphql.Marshaler {

@@ -21,11 +21,6 @@ type Match struct {
 	Scoreboard *Scoreboard `json:"scoreboard"`
 }
 
-type NewComment struct {
-	MatchID string `json:"matchId"`
-	Text    string `json:"text"`
-}
-
 type Player struct {
 	Username string `json:"username"`
 	Role     Role   `json:"role"`

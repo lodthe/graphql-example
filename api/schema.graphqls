@@ -4,7 +4,7 @@ type Query {
 }
 
 type Mutation {
-  createComment(comment: NewComment!): Comment!
+  createComment(matchId: ID!, text: String!): Comment!
 }
 
 type Match {
@@ -37,10 +37,5 @@ enum Role {
 
 type Comment {
   id: ID!
-  text: String!
-}
-
-input NewComment  {
-  matchId: ID!
   text: String!
 }

@@ -14,8 +14,8 @@ import (
 	zlog "github.com/rs/zerolog/log"
 )
 
-func (r *mutationResolver) CreateComment(ctx context.Context, comment gqlmodel.NewComment) (*gqlmodel.Comment, error) {
-	parsed, err := uuid.Parse(comment.MatchID)
+func (r *mutationResolver) CreateComment(ctx context.Context, matchID string, text string) (*gqlmodel.Comment, error) {
+	parsed, err := uuid.Parse(matchID)
 	if err != nil {
 		return nil, errors.Wrap(err, "invalid match id UUID format")
 	}
@@ -23,7 +23,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, comment gqlmodel.N
 	m, err := r.repo.Get(parsed)
 	if err != nil {
 		if !errors.Is(err, match.ErrNotFound) {
-			zlog.Err(err).Str("id", comment.MatchID).Msg("failed to get match to comment")
+			zlog.Err(err).Str("id", matchID).Msg("failed to get match to comment")
 		}
 
 		return nil, err
@@ -31,7 +31,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, comment gqlmodel.N
 
 	c := match.Comment{
 		ID:   uuid.New(),
-		Text: comment.Text,
+		Text: text,
 	}
 	m.State.Comments = append(m.State.Comments, c)
 
