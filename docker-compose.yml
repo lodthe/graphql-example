@@ -10,8 +10,17 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data/
     ports:
-      - '50005:5432'
+      - '50006:5432'
     restart: always
+
+
+  server:
+    image: lodthe/graphql-example
+    environment:
+      DB_POSTGRES_DSN: 'host=postgres port=5432 user=user password=123456 dbname=graphql sslmode=disable'
+    ports:
+      - '80:8080'
+    restart: unless-stopped
 
 volumes:
   postgres-data:
