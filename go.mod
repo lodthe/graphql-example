@@ -9,6 +9,7 @@ require (
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/pkg/errors v0.9.1
+	github.com/rs/cors v1.8.2
 	github.com/rs/zerolog v1.26.1
 	github.com/vektah/gqlparser/v2 v2.4.2
 )

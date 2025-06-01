@@ -1,0 +1,6 @@
+mutation {
+  createComment(matchId: "dfc2a88c-a41f-4618-a864-f73d0fcc19e4", text: "blah blah") {
+    id,
+    text
+  }
+}

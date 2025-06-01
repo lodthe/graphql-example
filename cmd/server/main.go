@@ -14,6 +14,7 @@ import (
 	"github.com/lodthe/graphql-example/internal/gqlgenerated"
 	"github.com/lodthe/graphql-example/internal/match"
 	"github.com/lodthe/graphql-example/internal/resolve"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	zlog "github.com/rs/zerolog/log"
 )
@@ -36,12 +37,22 @@ func main() {
 
 	repo := match.NewRepository(db)
 
-	http.Handle("/", playground.Handler("Demo", "/query"))
-	http.Handle("/query", handler.NewDefaultServer(gqlgenerated.NewExecutableSchema(
+	corsHandler := cors.New(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	})
+
+	http.Handle("/", corsHandler.Handler(playground.Handler("Demo", "/query")))
+	http.Handle("/query", corsHandler.Handler(handler.NewDefaultServer(gqlgenerated.NewExecutableSchema(
 		gqlgenerated.Config{
 			Resolvers: resolve.NewResolver(repo),
 		},
-	)))
+	))))
 
 	go func() {
 		err := http.ListenAndServe(conf.ServerAddress, nil)

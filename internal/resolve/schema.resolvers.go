@@ -65,6 +65,8 @@ func (r *queryResolver) Match(ctx context.Context, id string) (*gqlmodel.Match, 
 }
 
 func (r *queryResolver) Matches(ctx context.Context, isFinished *bool, limit *int, offset *int) ([]gqlmodel.Match, error) {
+	zlog.Info().Msg("getting all the matches")
+
 	matches, err := r.repo.GetAll()
 	if err != nil {
 		zlog.Err(err).Msg("failed to get matches")

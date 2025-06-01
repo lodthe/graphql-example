@@ -1,0 +1,19 @@
+{
+  matches {
+    id
+    createdAt
+    isFinished
+    comments {
+      id
+      text
+    }
+    scoreboard {
+      players {
+        username
+        role
+        isAlive
+        kills
+      }
+    }
+  }
+}
